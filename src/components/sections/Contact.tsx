@@ -1,8 +1,40 @@
 
 import React from 'react';
+import emailjs from '@emailjs/browser';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 
 const Contact: React.FC = () => {
+    const form = React.useRef<HTMLFormElement>(null);
+    const [isSending, setIsSending] = React.useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSending(true);
+
+        // TODO: To use Gmail, create a "Gmail" Service in EmailJS:
+        // 1. Go to https://dashboard.emailjs.com/admin/services
+        // 2. Click "Add New Service" -> Select "Gmail"
+        // 3. Connect your account and copy the Service ID (e.g., service_gmail)
+        const SERVICE_ID = 'service_4y2ltcw';
+        const TEMPLATE_ID = 'template_6i7yxvi';
+        const PUBLIC_KEY = 'goEmZYuj_vX91g0DO';
+
+
+
+        try {
+            if (form.current) {
+                await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY);
+                alert("Message sent successfully!");
+                form.current.reset();
+            }
+        } catch (error) {
+            console.error('Failed to send message:', error);
+            alert("Failed to send message. Please try again.");
+        } finally {
+            setIsSending(false);
+        }
+    };
+
     return (
         <section id="contact" className="bg-bg text-text-primary py-16 lg:py-24 relative overflow-hidden">
              {/* Background Blob */}
@@ -53,23 +85,31 @@ const Contact: React.FC = () => {
                 </div>
 
                 {/* Right Column: Form */}
-                <form className="bg-bg-card border border-border p-8 rounded-3xl shadow-lg">
+                <form 
+                    ref={form}
+                    onSubmit={handleSubmit}
+                    className="bg-bg-card border border-border p-8 rounded-3xl shadow-lg"
+                >
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div className="space-y-2">
-                            <label htmlFor="name" className="text-sm font-bold ml-1">Name</label>
+                            <label htmlFor="user_name" className="text-sm font-bold ml-1">Name</label>
                             <input 
                                 type="text" 
-                                id="name" 
+                                name="user_name"
+                                id="user_name" 
                                 placeholder="Your Name" 
+                                required
                                 className="w-full bg-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-secondary/50"
                             />
                         </div>
                         <div className="space-y-2">
-                            <label htmlFor="email" className="text-sm font-bold ml-1">Email</label>
+                            <label htmlFor="user_email" className="text-sm font-bold ml-1">Email</label>
                             <input 
                                 type="email" 
-                                id="email" 
+                                name="user_email"
+                                id="user_email" 
                                 placeholder="your@email.com" 
+                                required
                                 className="w-full bg-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-secondary/50"
                             />
                         </div>
@@ -79,8 +119,10 @@ const Contact: React.FC = () => {
                          <label htmlFor="subject" className="text-sm font-bold ml-1">Subject</label>
                          <input 
                             type="text" 
+                            name="subject"
                             id="subject" 
                             placeholder="Project Inquiry" 
+                            required
                             className="w-full bg-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-text-secondary/50"
                         />
                     </div>
@@ -88,15 +130,21 @@ const Contact: React.FC = () => {
                     <div className="space-y-2 mb-8">
                          <label htmlFor="message" className="text-sm font-bold ml-1">Message</label>
                          <textarea 
+                            name="message"
                             id="message" 
                             rows={4} 
                             placeholder="Tell me about your project..." 
+                            required
                             className="w-full bg-bg border border-border rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none placeholder:text-text-secondary/50"
                         />
                     </div>
 
-                    <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-black font-bold py-4 rounded-xl shadow-[0_0_20px_0_rgba(61,188,255,0.4)] transition-all flex items-center justify-center gap-2">
-                        Send Message <Send size={18} />
+                    <button 
+                        type="submit" 
+                        disabled={isSending}
+                        className="w-full bg-primary hover:bg-primary/90 text-black font-bold py-4 rounded-xl shadow-[0_0_20px_0_rgba(61,188,255,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {isSending ? 'Sending...' : 'Send Message'} <Send size={18} className={isSending ? 'animate-pulse' : ''} />
                     </button>
                 </form>
             </div>
