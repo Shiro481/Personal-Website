@@ -13,19 +13,19 @@ const Services: React.FC = () => {
     ];
 
     return (
-        <section id="services" className="bg-bg text-text-primary py-24 relative overflow-hidden">
+        <section id="services" className="bg-bg text-text-primary py-16 lg:py-24 relative overflow-hidden">
              {/* bg blur */}
              <div className="absolute top-[172px] right-0 translate-x-1/2 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px]" />
 
-            <div className="container mx-auto max-w-7xl px-4">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className="container mx-auto max-w-7xl px-6 lg:px-4">
+                <div className="flex flex-col md:flex-row justify-between items-end mb-12 lg:mb-16 gap-8">
                     <div className="max-w-xl">
-                        <h2 className="text-5xl font-bold font-poppins mb-4">What I Do</h2>
-                        <p className="text-text-secondary text-lg">
+                        <h2 className="text-3xl lg:text-5xl font-bold font-poppins mb-4">What I Do</h2>
+                        <p className="text-text-secondary text-base lg:text-lg">
                             I combine technical expertise with creative problem-solving to deliver high-quality digital solutions.
                         </p>
                     </div>
-                    <a href="#projects" className="text-primary flex items-center gap-2 hover:underline">
+                    <a href="#projects" className="text-primary flex items-center gap-2 hover:underline text-sm lg:text-base">
                         View All Projects <ArrowRight size={20}/>
                     </a>
                 </div>

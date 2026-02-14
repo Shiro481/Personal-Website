@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Code2, Sun, Moon } from 'lucide-react';
 import clsx from 'clsx';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -47,6 +48,25 @@ const Navbar: React.FC = () => {
         setIsOpen(!isOpen);
     };
 
+    const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        e.preventDefault();
+        setIsOpen(false);
+        
+        // Wait for mobile menu close animation to prevent layout conflicts
+        setTimeout(() => {
+            const targetId = href.replace('#', '');
+            const element = document.getElementById(targetId);
+            
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                window.history.pushState(null, '', href);
+            } else if (href === '#') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.history.pushState(null, '', window.location.pathname);
+            }
+        }, 300);
+    };
+
     return (
         <nav
             className={clsx(
@@ -56,10 +76,10 @@ const Navbar: React.FC = () => {
                     : 'bg-transparent py-6'
             )}
         >
-            <div className="container mx-auto px-4 max-w-7xl">
+            <div className="container mx-auto px-4 max-w-7xl relative z-50">
                 <div className="flex justify-between items-center">
                     {/* Logo */}
-                    <a href="#" className="flex items-center gap-2 group">
+                    <a href="#" onClick={(e) => handleNavClick(e, '#')} className="flex items-center gap-2 group">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform duration-300">
                            <Code2 size={24} />
                         </div>
@@ -74,6 +94,7 @@ const Navbar: React.FC = () => {
                             <a
                                 key={link.name}
                                 href={link.href}
+                                onClick={(e) => handleNavClick(e, link.href)}
                                 className="text-text-secondary hover:text-primary font-medium text-sm transition-colors relative group"
                             >
                                 {link.name}
@@ -95,6 +116,7 @@ const Navbar: React.FC = () => {
                         {/* CTA Button (Desktop) */}
                         <a
                             href="#contact"
+                            onClick={(e) => handleNavClick(e, '#contact')}
                             className="bg-primary/10 border border-primary/20 hover:bg-primary/20 text-primary px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 backdrop-blur-sm"
                         >
                             Let's Talk
@@ -102,42 +124,94 @@ const Navbar: React.FC = () => {
                     </div>
 
 
-                    {/* Mobile Menu Button */}
+                    {/* Mobile Menu Button - Animated */}
                     <button
                         onClick={toggleMenu}
-                        className="md:hidden text-text-primary hover:text-primary transition-colors focus:outline-none"
+                        className="md:hidden text-text-primary hover:text-primary transition-colors focus:outline-none z-50 relative"
                     >
-                        {isOpen ? <X size={28} /> : <Menu size={28} />}
+                         <AnimatePresence mode="wait">
+                            <motion.div
+                                key={isOpen ? 'close' : 'menu'}
+                                initial={{ opacity: 0, rotate: -90 }}
+                                animate={{ opacity: 1, rotate: 0 }}
+                                exit={{ opacity: 0, rotate: 90 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                {isOpen ? <X size={28} /> : <Menu size={28} />}
+                            </motion.div>
+                         </AnimatePresence>
                     </button>
                 </div>
             </div>
 
-            {/* Mobile Menu Overlay */}
-            <div
-                className={clsx(
-                    'fixed inset-0 bg-bg/95 backdrop-blur-xl z-40 md:hidden transition-all duration-300 flex flex-col items-center justify-center space-y-8',
-                    isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-                )}
-            >
-                {navLinks.map((link) => (
-                    <a
-                        key={link.name}
-                        href={link.href}
-                        onClick={() => setIsOpen(false)}
-                        className="text-2xl font-poppins font-bold text-text-primary hover:text-primary transition-colors"
+            {/* Mobile Menu Dropdown */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0, y: -20 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -20 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        className="absolute top-full left-0 w-full bg-bg/95 backdrop-blur-xl border-b border-border shadow-2xl md:hidden overflow-hidden origin-top"
                     >
-                        {link.name}
-                    </a>
-                ))}
-                
-                <a
-                    href="#contact"
-                    onClick={() => setIsOpen(false)}
-                    className="mt-8 px-8 py-3 bg-primary text-black font-bold rounded-full text-lg hover:shadow-[0_0_20px_rgba(61,188,255,0.4)] transition-all"
-                >
-                    Let's Talk
-                </a>
-            </div>
+                        <div className="container mx-auto px-4 py-6 flex flex-col space-y-4">
+                            {navLinks.map((link, index) => (
+                                <motion.div
+                                    key={link.name}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.1 + 0.1 }}
+                                >
+                                    <a
+                                        href={link.href}
+                                        onClick={(e) => handleNavClick(e, link.href)}
+                                        className="text-lg font-medium text-text-secondary hover:text-primary hover:pl-2 transition-all block"
+                                    >
+                                        {link.name}
+                                    </a>
+                                </motion.div>
+                            ))}
+
+                            <motion.div 
+                                initial={{ opacity: 0, scaleX: 0 }}
+                                animate={{ opacity: 1, scaleX: 1 }}
+                                transition={{ delay: 0.3 }}
+                                className="w-full h-px bg-border/50 my-2 origin-left" 
+                            />
+                            
+                            {/* Mobile Theme Toggle */}
+                            <motion.button
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4 }}
+                                onClick={toggleTheme}
+                                className="flex items-center gap-3 text-text-secondary hover:text-primary transition-colors group"
+                            >
+                                <div className="p-2 rounded-lg bg-bg-card group-hover:bg-primary/10 transition-colors">
+                                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                                </div>
+                                <span className="font-medium">
+                                    {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                </span>
+                            </motion.button>
+                            
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                            >
+                                <a
+                                    href="#contact"
+                                    onClick={(e) => handleNavClick(e, '#contact')}
+                                    className="w-full bg-primary text-black font-bold rounded-xl py-3 text-center shadow-[0_0_20px_0_rgba(61,188,255,0.3)] hover:shadow-[0_0_25px_0_rgba(61,188,255,0.5)] transition-all mt-2 block"
+                                >
+                                    Let's Talk
+                                </a>
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </nav>
     );
 };

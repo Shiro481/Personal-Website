@@ -4,14 +4,14 @@ import { ExternalLink, Briefcase } from 'lucide-react';
 
 const Projects: React.FC = () => {
     return (
-        <section id="projects" className="bg-bg-secondary text-text-primary py-24 relative overflow-hidden">
+        <section id="projects" className="bg-bg-secondary text-text-primary py-16 lg:py-24 relative overflow-hidden">
             <div className="absolute top-[194px] right-[-100px] w-[384px] h-[384px] bg-primary/5 rounded-full blur-[100px]" />
 
-            <div className="container mx-auto max-w-7xl px-4">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-16">
-                     <div className="flex items-end gap-4">
-                         <span className="text-primary text-4xl font-bold font-poppins leading-none">03.</span>
-                         <h2 className="text-4xl font-bold font-poppins leading-none">Featured Work</h2>
+            <div className="container mx-auto max-w-7xl px-6 lg:px-4">
+                <div className="flex flex-col md:flex-row justify-between items-end mb-12 lg:mb-16">
+                     <div className="flex items-end gap-4 mb-6 md:mb-0">
+                         <span className="text-primary text-3xl lg:text-4xl font-bold font-poppins leading-none">03.</span>
+                         <h2 className="text-3xl lg:text-4xl font-bold font-poppins leading-none">Featured Work</h2>
                     </div>
                      <div className="mt-4 md:mt-0">
                          <p className="text-text-secondary max-w-lg mb-4">

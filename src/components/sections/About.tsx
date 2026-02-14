@@ -4,30 +4,30 @@ import { Sparkles, BookOpen, GraduationCap, Terminal, Download, Github, Linkedin
 
 const About: React.FC = () => {
     return (
-        <section id="about" className="bg-bg-secondary text-text-primary py-24 relative overflow-hidden">
+        <section id="about" className="bg-bg-secondary text-text-primary py-16 lg:py-24 relative overflow-hidden">
              {/* Background Blob */}
             <div className="absolute top-[200px] left-0 w-[256px] h-[256px] bg-primary/5 rounded-full blur-[80px]" />
 
-            <div className="container mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="container mx-auto max-w-7xl px-6 lg:px-4 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
                  {/* Left Column: Image/Profile */}
-                <div className="lg:col-span-5 relative order-2 lg:order-1">
-                    <div className="relative rounded-2xl overflow-hidden border border-border bg-bg-card p-2">
+                <div className="lg:col-span-5 relative order-1 lg:order-1">
+                    <div className="relative rounded-2xl overflow-hidden border border-border bg-bg-card p-2 max-w-md mx-auto lg:max-w-none">
                         <div className="aspect-[4/5] rounded-xl overflow-hidden relative">
                              <img 
-                                src="/Images/About.JPG" 
+                                src="/images/About.JPG" 
                                 alt="Shaq Lee" 
                                 className="w-full h-full object-cover"
                             />
                             {/* Overlay content on image */}
-                             <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 to-transparent">
-                                <h3 className="text-2xl font-bold font-poppins text-white">Shaq Lee Ambagan</h3>
-                                <p className="text-primary">Aspiring Developer</p>
+                             <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 bg-gradient-to-t from-black/90 to-transparent">
+                                <h3 className="text-xl lg:text-2xl font-bold font-poppins text-white">Shaq Lee Ambagan</h3>
+                                <p className="text-primary text-sm lg:text-base">Aspiring Developer</p>
                              </div>
                         </div>
                     </div>
                     
                     {/* CV Download & Socials */}
-                    <div className="mt-6 flex gap-4">
+                    <div className="mt-6 flex gap-4 max-w-md mx-auto lg:max-w-none">
                         <button className="flex-1 bg-primary hover:bg-primary/80 text-black font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors">
                             <Download size={20} />
                             Download CV
@@ -44,11 +44,11 @@ const About: React.FC = () => {
                 </div>
 
                  {/* Right Column: Content */}
-                <div className="lg:col-span-7 space-y-12 order-1 lg:order-2">
+                <div className="lg:col-span-7 space-y-8 lg:space-y-12 order-2 lg:order-2">
                     {/* Section Header */}
                     <div className="flex items-end gap-4">
-                         <span className="text-primary text-4xl font-bold font-poppins leading-none">01.</span>
-                         <h2 className="text-4xl font-bold font-poppins leading-none text-text-primary">About Me</h2>
+                         <span className="text-primary text-3xl lg:text-4xl font-bold font-poppins leading-none">01.</span>
+                         <h2 className="text-3xl lg:text-4xl font-bold font-poppins leading-none text-text-primary">About Me</h2>
                     </div>
 
                     {/* Bio Text */}

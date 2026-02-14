@@ -4,16 +4,16 @@ import { Mail, Phone, MapPin, Send } from 'lucide-react';
 
 const Contact: React.FC = () => {
     return (
-        <section id="contact" className="bg-bg text-text-primary py-24 relative overflow-hidden">
+        <section id="contact" className="bg-bg text-text-primary py-16 lg:py-24 relative overflow-hidden">
              {/* Background Blob */}
             <div className="absolute bottom-0 left-[-100px] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px]" />
 
-            <div className="container mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
+            <div className="container mx-auto max-w-7xl px-6 lg:px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 relative z-10">
                 {/* Left Column: Info */}
                 <div>
                      <div className="flex items-end gap-4 mb-8">
-                         <span className="text-primary text-4xl font-bold font-poppins leading-none">04.</span>
-                         <h2 className="text-4xl font-bold font-poppins leading-none">Get in Touch</h2>
+                         <span className="text-primary text-3xl lg:text-4xl font-bold font-poppins leading-none">04.</span>
+                         <h2 className="text-3xl lg:text-4xl font-bold font-poppins leading-none">Get in Touch</h2>
                     </div>
                     <p className="text-text-secondary text-lg mb-12 max-w-md">
                         I'm currently looking for internships and new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!
