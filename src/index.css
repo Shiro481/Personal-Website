@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+:root {
+  /* Default (Dark) */
+  --color-bg: #050505;
+  --color-bg-secondary: #080808;
+  --color-bg-card: #111111;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #99a1af;
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-primary: #3dbcff;
+}
+
+[data-theme="light"] {
+  /* Light Mode */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f3f4f6;
+  --color-bg-card: #ffffff;
+  --color-text-primary: #111111;
+  --color-text-secondary: #4b5563;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-primary: #0ea5e9; /* Slightly darker blue for contrast */
+}
+
+@theme {
+  --color-bg: var(--color-bg);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-card: var(--color-bg-card);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-border: var(--color-border);
+  --color-primary: var(--color-primary);
+
+  --font-sans: 'Arial', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-mono: 'Consolas', monospace;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: var(--font-sans);
+  font-family: var(--font-sans);
+}
+
+/* Smooth theme transition for all color-related properties */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 300ms;
+  transition-timing-function: ease-in-out;
+}
+
+html {
+  scroll-behavior: smooth;
+}
