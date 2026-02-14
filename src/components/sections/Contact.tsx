@@ -1,11 +1,12 @@
 
 import React from 'react';
 import emailjs from '@emailjs/browser';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Check, X } from 'lucide-react';
 
 const Contact: React.FC = () => {
     const form = React.useRef<HTMLFormElement>(null);
     const [isSending, setIsSending] = React.useState(false);
+    const [showModal, setShowModal] = React.useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -22,11 +23,11 @@ const Contact: React.FC = () => {
 
 
         try {
-            if (form.current) {
-                await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY);
-                alert("Message sent successfully!");
-                form.current.reset();
-            }
+                if (form.current) {
+                    await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY);
+                    setShowModal(true);
+                    form.current.reset();
+                }
         } catch (error) {
             console.error('Failed to send message:', error);
             alert("Failed to send message. Please try again.");
@@ -148,6 +149,38 @@ const Contact: React.FC = () => {
                     </button>
                 </form>
             </div>
+
+            {/* Success Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <div className="bg-bg-card border border-border p-8 rounded-3xl shadow-[0_0_50px_0_rgba(61,188,255,0.2)] max-w-sm w-full relative animate-in fade-in zoom-in duration-300">
+                        <button 
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-4 right-4 text-text-secondary hover:text-white transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
+                        
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-6">
+                                <Check size={32} strokeWidth={3} />
+                            </div>
+                            
+                            <h3 className="text-2xl font-bold font-poppins text-white mb-2">Message Sent!</h3>
+                            <p className="text-text-secondary mb-8">
+                                Thanks for reaching out. I'll get back to you as soon as possible!
+                            </p>
+                            
+                            <button 
+                                onClick={() => setShowModal(false)}
+                                className="w-full bg-primary hover:bg-primary/90 text-black font-bold py-3 rounded-xl transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </section>
     );
 };
