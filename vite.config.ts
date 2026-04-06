@@ -16,40 +16,26 @@ export default defineConfig(({ mode }) => {
         '/api/slots': {
           target: 'https://api.cal.com',
           changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/slots/, '/v1/slots'),
           configure: (proxy, _options) => {
-            proxy.on('proxyReq', (proxyReq, req, _res) => {
+            proxy.on('proxyReq', (proxyReq, _req, _res) => {
               const apiKey = env.VITE_CAL_API_KEY;
               if (!apiKey) return;
-              
-              if (req.method === 'POST') {
-                // Read input body to extract query parameters for Cal API v1 slots endpoint
-                let bodyData = '';
-                req.on('data', (chunk) => { bodyData += chunk; });
-                req.on('end', () => {
-                  try {
-                    const { eventTypeId, startTime, endTime } = JSON.parse(bodyData);
-                    proxyReq.path = `/v1/slots?apiKey=${apiKey}&eventTypeId=${eventTypeId}&startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`;
-                    proxyReq.method = 'GET';
-                    proxyReq.setHeader('Content-Length', '0');
-                  } catch (e) {
-                    console.error('Error parsing proxy body for slots:', e);
-                  }
-                });
-              }
+              const separator = proxyReq.path.includes('?') ? '&' : '?';
+              proxyReq.path = `${proxyReq.path}${separator}apiKey=${apiKey}`;
             });
           }
         },
         '/api/book': {
           target: 'https://api.cal.com',
           changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/book/, '/v1/bookings'),
           configure: (proxy, _options) => {
             proxy.on('proxyReq', (proxyReq, _req, _res) => {
               const apiKey = env.VITE_CAL_API_KEY;
               if (!apiKey) return;
-              
-              // Cal.com API v1 requires apiKey as a query parameter even on POST
-              const originalPath = '/v1/bookings';
-              proxyReq.path = `${originalPath}?apiKey=${apiKey}`;
+              const separator = proxyReq.path.includes('?') ? '&' : '?';
+              proxyReq.path = `${proxyReq.path}${separator}apiKey=${apiKey}`;
             });
           }
         }

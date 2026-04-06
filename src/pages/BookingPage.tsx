@@ -62,17 +62,12 @@ const BookingPage: React.FC = () => {
             const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString();
             
             // Using our unified proxy endpoint (Cloudflare Function / Vite Dev Proxy)
-            // This bypasses CORS and protects the API key by keeping it on the server
-            const response = await fetch('/api/slots', {
-                method: 'POST',
+            // Changed to GET to avoid body-parsing issues in local proxies
+            const response = await fetch(`/api/slots?eventTypeId=${eventTypeId}&startTime=${encodeURIComponent(startOfMonth)}&endTime=${encodeURIComponent(endOfMonth)}`, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    eventTypeId,
-                    startTime: startOfMonth,
-                    endTime: endOfMonth
-                })
+                }
             });
             
             if (!response.ok) {
@@ -135,6 +130,9 @@ const BookingPage: React.FC = () => {
         // Combined notes for Cal.com
         const notesContent = `Phone: ${formData.phone}\nService: ${formData.service}${formData.message ? `\n\nMessage: ${formData.message}` : ''}`;
         
+        const startTimeObj = new Date(formData.time);
+        const endTimeObj = new Date(startTimeObj.getTime() + 60 * 60 * 1000); // 1 hour duration
+
         try {
             const response = await fetch('/api/book', {
                 method: 'POST',
@@ -143,11 +141,20 @@ const BookingPage: React.FC = () => {
                 },
                 body: JSON.stringify({
                     eventTypeId,
-                    startTime: formData.time, // ISO time from availableSlots
-                    name: formData.name,
-                    email: formData.email,
-                    notes: notesContent,
-                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    start: startTimeObj.toISOString(),
+                    end: endTimeObj.toISOString(),
+                    responses: {
+                        name: formData.name,
+                        email: formData.email,
+                        notes: notesContent,
+                        location: {
+                            value: "integrations:daily",
+                            optionValue: ""
+                        }
+                    },
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    language: 'en',
+                    metadata: {}
                 })
             });
 

@@ -1,6 +1,7 @@
 /**
  * Cloudflare Pages Function proxy for Cal.com API (Bookings)
- * This handles the direct booking creation without redirecting to Cal.com UI.
+ * This handles the direct booking creation without exposing the API key.
+ * It expects a JSON body compatible with Cal.com API v1.
  */
 export const onRequestPost = async (context) => {
   const { request, env } = context;
@@ -19,11 +20,35 @@ export const onRequestPost = async (context) => {
 
   try {
     const payload = await request.json();
-    const { eventTypeId, startTime, name, email, notes, timeZone = "Asia/Manila" } = payload;
+    
+    // Normalize payload for Cal.com API v1
+    // We prefer the frontend to send the correct 'start' and 'end' fields,
+    // but we'll add some safety defaults here.
+    const calPayload = {
+      eventTypeId: payload.eventTypeId,
+      start: payload.start || payload.startTime,
+      end: payload.end,
+      responses: payload.responses || {
+        name: payload.name,
+        email: payload.email,
+        notes: payload.notes,
+        location: payload.location || {
+          value: "integrations:daily",
+          optionValue: ""
+        }
+      },
+      timeZone: payload.timeZone || "Asia/Manila",
+      language: payload.language || "en",
+      metadata: payload.metadata || {}
+    };
 
-    // Calculate end time (default to 60 minutes after start)
-    const startDate = new Date(startTime);
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Add 60 mins
+    // Validate minimum required fields
+    if (!calPayload.eventTypeId || !calPayload.start) {
+      return new Response(JSON.stringify({ error: "Missing required fields: eventTypeId and start time are required." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
 
     // Cal.com API v1 auth: pass apiKey as a query parameter
     const calUrl = `https://api.cal.com/v1/bookings?apiKey=${apiKey}`;
@@ -33,19 +58,7 @@ export const onRequestPost = async (context) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        eventTypeId,
-        start: startDate.toISOString(),
-        end: endDate.toISOString(),
-        responses: {
-          name,
-          email,
-          notes,
-          location: "integrations:daily" // Default to Daily for consultations
-        },
-        timeZone,
-        language: "en"
-      })
+      body: JSON.stringify(calPayload)
     });
 
     const data = await response.json();

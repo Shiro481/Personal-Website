@@ -1,50 +1,44 @@
 /**
  * Cloudflare Pages Function proxy for Cal.com API
- * This bypasses CORS by being on the same domain and securely injects the API Key.
- * Cal.com API v1 requires the key as a URL query parameter: ?apiKey=xxx
+ * Support both GET (query params) and POST (JSON body)
  */
-export const onRequestPost = async (context) => {
+export const onRequest = async (context) => {
   const { request, env } = context;
-
-  // Use the secret key set in Cloudflare Dashboard (Functions > Environment Variables)
   const apiKey = env.VITE_CAL_API_KEY;
 
   if (!apiKey) {
-    return new Response(JSON.stringify({ 
-      error: "VITE_CAL_API_KEY environment variable is not set in Cloudflare." 
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return new Response(JSON.stringify({ error: "API Key missing" }), { status: 500 });
   }
 
   try {
-    const payload = await request.json();
-    const { eventTypeId, startTime, endTime } = payload;
+    let eventTypeId, startTime, endTime;
 
-    // Cal.com API v1 auth: pass apiKey as a query parameter
+    if (request.method === "POST") {
+      const payload = await request.json();
+      eventTypeId = payload.eventTypeId;
+      startTime = payload.startTime;
+      endTime = payload.endTime;
+    } else {
+      const url = new URL(request.url);
+      eventTypeId = url.searchParams.get("eventTypeId");
+      startTime = url.searchParams.get("startTime");
+      endTime = url.searchParams.get("endTime");
+    }
+
+    if (!eventTypeId || !startTime || !endTime) {
+      return new Response(JSON.stringify({ error: "Missing required parameters" }), { status: 400 });
+    }
+
     const calUrl = `https://api.cal.com/v1/slots?apiKey=${apiKey}&eventTypeId=${eventTypeId}&startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`;
 
-    const response = await fetch(calUrl, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
+    const response = await fetch(calUrl);
     const data = await response.json();
 
-    // Forward the raw Cal.com response (including any errors) for easier debugging
     return new Response(JSON.stringify(data), {
       status: response.status,
-      headers: { 
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      }
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message || "Proxy request failed" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 };
