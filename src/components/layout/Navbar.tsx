@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Code2, Sun, Moon } from 'lucide-react';
+import { Menu, X, Code2, Sun, Moon, CalendarCheck } from 'lucide-react';
 import clsx from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -42,7 +42,6 @@ const Navbar: React.FC = () => {
         { name: 'Services', href: '/#services' },
         { name: 'Projects', href: '/#projects' },
         { name: 'Contact', href: '/#contact' },
-        { name: 'Booking', href: '/booking' },
     ];
 
     const toggleMenu = () => {
@@ -122,13 +121,14 @@ const Navbar: React.FC = () => {
                             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
 
-                        {/* CTA Button (Desktop) */}
+                        {/* Book Appointment CTA (Desktop) */}
                         <a
-                            href="/#contact"
-                            onClick={(e) => handleNavClick(e, '/#contact')}
-                            className="bg-primary/10 border border-primary/20 hover:bg-primary/20 text-primary px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 backdrop-blur-sm"
+                            href="/booking"
+                            onClick={(e) => handleNavClick(e, '/booking')}
+                            className="flex items-center gap-2 bg-primary text-black font-bold px-5 py-2.5 rounded-full text-sm transition-all duration-300 shadow-[0_0_20px_0_rgba(61,188,255,0.35)] hover:shadow-[0_0_28px_0_rgba(61,188,255,0.55)] hover:scale-105 active:scale-100"
                         >
-                            Let's Talk
+                            <CalendarCheck size={15} />
+                            Book Appointment
                         </a>
                     </div>
 
@@ -210,11 +210,12 @@ const Navbar: React.FC = () => {
                                 transition={{ delay: 0.5 }}
                             >
                                 <a
-                                    href="/#contact"
-                                    onClick={(e) => handleNavClick(e, '/#contact')}
-                                    className="w-full bg-primary text-black font-bold rounded-xl py-3 text-center shadow-[0_0_20px_0_rgba(61,188,255,0.3)] hover:shadow-[0_0_25px_0_rgba(61,188,255,0.5)] transition-all mt-2 block"
+                                    href="/booking"
+                                    onClick={(e) => handleNavClick(e, '/booking')}
+                                    className="w-full flex items-center justify-center gap-2 bg-primary text-black font-bold rounded-xl py-3 text-center shadow-[0_0_20px_0_rgba(61,188,255,0.3)] hover:shadow-[0_0_28px_0_rgba(61,188,255,0.5)] transition-all mt-2 block"
                                 >
-                                    Let's Talk
+                                    <CalendarCheck size={18} />
+                                    Book Appointment
                                 </a>
                             </motion.div>
                         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, ExternalLink, CalendarCheck } from 'lucide-react';
 
 const Booking: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -104,6 +104,21 @@ const Booking: React.FC = () => {
           </div>
 
         </div>
+
+        {/* Prominent CTA Button */}
+        <div className="flex flex-col items-center mt-10 gap-4">
+          <a
+            href="/booking"
+            className="group flex items-center gap-3 bg-primary text-black font-bold px-8 py-4 rounded-2xl text-base transition-all duration-300 shadow-[0_0_30px_0_rgba(61,188,255,0.4)] hover:shadow-[0_0_45px_0_rgba(61,188,255,0.65)] hover:scale-105 active:scale-100"
+          >
+            <CalendarCheck size={20} className="transition-transform duration-300 group-hover:rotate-12" />
+            Book Appointment
+          </a>
+          <p className="text-text-secondary text-sm">
+            Or click a date above to jump straight to that day
+          </p>
+        </div>
+
       </div>
     </section>
   );
