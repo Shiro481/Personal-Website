@@ -63,7 +63,8 @@ const BookingPage: React.FC = () => {
             
             // Using our unified proxy endpoint (Cloudflare Function / Vite Dev Proxy)
             // Changed to GET to avoid body-parsing issues in local proxies
-            const response = await fetch(`/api/slots?eventTypeId=${eventTypeId}&startTime=${encodeURIComponent(startOfMonth)}&endTime=${encodeURIComponent(endOfMonth)}`, {
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const response = await fetch(`/api/slots?eventTypeId=${eventTypeId}&startTime=${encodeURIComponent(startOfMonth)}&endTime=${encodeURIComponent(endOfMonth)}&timeZone=${encodeURIComponent(timeZone)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
