@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Send, X, UserCheck } from 'lucide-react';
+import { MessageSquare, Send, X } from 'lucide-react';
+import logo from '../../assets/My Logo.png';
+
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -160,8 +162,8 @@ export default function ChatBot() {
             {/* Header */}
             <div className="p-5 border-b border-border bg-bg-secondary/30 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
-                  <UserCheck size={20} />
+                <div className="w-10 h-10 bg-white/5 border border-border/20 rounded-full flex items-center justify-center p-1.5 overflow-hidden">
+                  <img src={logo} alt="Bot Avatar" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-text-primary leading-tight">Virtual Assistant</h3>

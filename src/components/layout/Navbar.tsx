@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Code2, Sun, Moon, CalendarCheck } from 'lucide-react';
+import { Menu, X, Sun, Moon, CalendarCheck } from 'lucide-react';
 import clsx from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
+import logo from '../../assets/My Logo.png';
+
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -88,10 +90,13 @@ const Navbar: React.FC = () => {
                 <div className="flex justify-between items-center">
                     {/* Logo */}
                     <a href="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center gap-2 group">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform duration-300">
-                           <Code2 size={24} />
-                        </div>
+                        <img 
+                            src={logo} 
+                            alt="Shaq Lee Logo" 
+                            className="w-10 h-10 object-contain rounded-full border border-border/50 bg-white/5 p-1 group-hover:scale-110 transition-transform duration-300" 
+                        />
                         <span className="text-text-primary font-poppins font-bold text-xl tracking-tight group-hover:text-primary transition-colors">
+
                             Shaq Lee
                         </span>
                     </a>

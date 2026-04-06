@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Code2 } from 'lucide-react';
+import logo from '../../assets/My Logo.png';
+
 
 interface PreloaderProps {
     onComplete: () => void;
@@ -42,9 +43,9 @@ const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
                         type: "spring", 
                         bounce: 0.5 
                     }}
-                    className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-tr from-sky-400 to-blue-600 flex items-center justify-center text-white shadow-[0_0_50px_rgba(56,189,248,0.3)] mb-8 glass-effect"
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-[0_0_50px_rgba(56,189,248,0.2)] mb-8 glass-effect overflow-hidden p-2"
                 >
-                    <Code2 size={48} strokeWidth={2.5} />
+                    <img src={logo} alt="Logo" className="w-full h-full object-contain" />
                 </motion.div>
                 
                 {/* Text Reveal Animation */}
