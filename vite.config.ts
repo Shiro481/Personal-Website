@@ -14,10 +14,11 @@ export default defineConfig(({ mode }) => {
           target: 'https://api.cal.com/v1/slots',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api\/slots/, ''),
-          configure: (proxy, options) => {
-            proxy.on('proxyReq', (proxyReq, req, res) => {
+          configure: (proxy, _options) => {
+            proxy.on('proxyReq', (proxyReq, _req, _res) => {
               if (env.VITE_CAL_API_KEY) {
-                proxyReq.setHeader('Authorization', `Bearer ${env.VITE_CAL_API_KEY}`);
+                // Cal.com API v1 uses 'apiKey' header or query param
+                proxyReq.setHeader('apiKey', env.VITE_CAL_API_KEY);
               }
             });
           }

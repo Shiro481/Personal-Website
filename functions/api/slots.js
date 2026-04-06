@@ -25,7 +25,7 @@ export const onRequestPost = async (context) => {
       `https://api.cal.com/v1/slots?eventTypeId=${eventTypeId}&startTime=${startTime}&endTime=${endTime}`,
       {
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
+          "apiKey": apiKey,
           "Content-Type": "application/json",
         },
       }
