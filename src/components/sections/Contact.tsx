@@ -1,6 +1,5 @@
 
 import React from 'react';
-import emailjs from '@emailjs/browser';
 import { Mail, Phone, MapPin, Send, Check, X } from 'lucide-react';
 
 const Contact: React.FC = () => {
@@ -12,25 +11,36 @@ const Contact: React.FC = () => {
         e.preventDefault();
         setIsSending(true);
 
-        // TODO: To use Gmail, create a "Gmail" Service in EmailJS:
-        // 1. Go to https://dashboard.emailjs.com/admin/services
-        // 2. Click "Add New Service" -> Select "Gmail"
-        // 3. Connect your account and copy the Service ID (e.g., service_gmail)
-        const SERVICE_ID = 'service_4y2ltcw';
-        const TEMPLATE_ID = 'template_6i7yxvi';
-        const PUBLIC_KEY = 'goEmZYuj_vX91g0DO';
-
-
+        const formData = new FormData(form.current!);
+        const payload = {
+            name: formData.get('user_name'),
+            email: formData.get('user_email'),
+            subject: formData.get('subject'),
+            message: formData.get('message'),
+        };
 
         try {
-                if (form.current) {
-                    await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, PUBLIC_KEY);
-                    setShowModal(true);
-                    form.current.reset();
-                }
+            // Securely sending email via Supabase Edge Function to protect Resend API Key
+            const response = await fetch('https://ripdmhkmkfkvrezswmdw.supabase.co/functions/v1/send-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Using the anon key is fine here as the function is designed for public contact form usage
+                    'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to send');
+            }
+
+            setShowModal(true);
+            form.current?.reset();
         } catch (error) {
             console.error('Failed to send message:', error);
-            alert("Failed to send message. Please try again.");
+            alert("Failed to send message. Please ensure your Resend API Key is set in Supabase Secrets.");
         } finally {
             setIsSending(false);
         }

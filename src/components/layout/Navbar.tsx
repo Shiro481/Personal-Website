@@ -37,11 +37,12 @@ const Navbar: React.FC = () => {
     };
 
     const navLinks = [
-        { name: 'Home', href: '#' },
-        { name: 'About', href: '#about' },
-        { name: 'Services', href: '#services' },
-        { name: 'Projects', href: '#projects' },
-        { name: 'Contact', href: '#contact' },
+        { name: 'Home', href: '/' },
+        { name: 'About', href: '/#about' },
+        { name: 'Services', href: '/#services' },
+        { name: 'Projects', href: '/#projects' },
+        { name: 'Contact', href: '/#contact' },
+        { name: 'Booking', href: '/booking' },
     ];
 
     const toggleMenu = () => {
@@ -52,17 +53,25 @@ const Navbar: React.FC = () => {
         e.preventDefault();
         setIsOpen(false);
         
-        // Wait for mobile menu close animation to prevent layout conflicts
         setTimeout(() => {
-            const targetId = href.replace('#', '');
-            const element = document.getElementById(targetId);
+            const isJustPath = href.startsWith('/') && !href.includes('#');
+            const isAnchorInSamePage = href.startsWith('/#') && window.location.pathname === '/';
             
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-                window.history.pushState(null, '', href);
+            if (isJustPath) {
+                // Navigate to a different page route
+                window.location.href = href;
+            } else if (isAnchorInSamePage) {
+                // Scroll to section on same page
+                const targetId = href.split('#')[1];
+                const element = document.getElementById(targetId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (href.startsWith('/#')) {
+                // Not on home page, so navigate to home page WITH anchor
+                window.location.href = href;
             } else if (href === '#') {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                window.history.pushState(null, '', window.location.pathname);
             }
         }, 300);
     };
@@ -79,7 +88,7 @@ const Navbar: React.FC = () => {
             <div className="container mx-auto px-4 max-w-7xl relative z-50">
                 <div className="flex justify-between items-center">
                     {/* Logo */}
-                    <a href="#" onClick={(e) => handleNavClick(e, '#')} className="flex items-center gap-2 group">
+                    <a href="/" onClick={(e) => handleNavClick(e, '/')} className="flex items-center gap-2 group">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-105 transition-transform duration-300">
                            <Code2 size={24} />
                         </div>
@@ -115,8 +124,8 @@ const Navbar: React.FC = () => {
 
                         {/* CTA Button (Desktop) */}
                         <a
-                            href="#contact"
-                            onClick={(e) => handleNavClick(e, '#contact')}
+                            href="/#contact"
+                            onClick={(e) => handleNavClick(e, '/#contact')}
                             className="bg-primary/10 border border-primary/20 hover:bg-primary/20 text-primary px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 backdrop-blur-sm"
                         >
                             Let's Talk
@@ -201,8 +210,8 @@ const Navbar: React.FC = () => {
                                 transition={{ delay: 0.5 }}
                             >
                                 <a
-                                    href="#contact"
-                                    onClick={(e) => handleNavClick(e, '#contact')}
+                                    href="/#contact"
+                                    onClick={(e) => handleNavClick(e, '/#contact')}
                                     className="w-full bg-primary text-black font-bold rounded-xl py-3 text-center shadow-[0_0_20px_0_rgba(61,188,255,0.3)] hover:shadow-[0_0_25px_0_rgba(61,188,255,0.5)] transition-all mt-2 block"
                                 >
                                     Let's Talk
