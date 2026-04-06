@@ -22,8 +22,8 @@ const Booking: React.FC = () => {
     const dayStr = day.toString().padStart(2, '0');
     const dateStr = `${currentDate.getFullYear()}-${month}-${dayStr}`;
     
-    // Redirect to Cal.com with the selected date
-    window.open(`https://cal.com/ambagan-shaq-lee-r-in8dyi/30min?date=${dateStr}`, '_blank');
+    // Navigate to our internal booking page
+    window.location.href = `/booking?date=${dateStr}`;
   };
 
   return (

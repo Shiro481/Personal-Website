@@ -37,25 +37,49 @@ const BookingPage: React.FC = () => {
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
 
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const dateFromUrl = urlParams.get('date');
+        if (dateFromUrl) {
+            setFormData(prev => ({ ...prev, date: dateFromUrl }));
+            const dateObj = new Date(dateFromUrl);
+            setCurrentDate(new Date(dateObj.getFullYear(), dateObj.getMonth(), 1));
+            setSelectedDate(dateObj.getDate());
+        }
+    }, []);
+
     const fetchSlots = useCallback(async () => {
         const eventTypeId = SERVICE_TYPE_MAP[formData.service] || 5264837;
-        const apiKey = import.meta.env.VITE_CAL_API_KEY;
 
-        if (!apiKey || !formData.service) return;
+        if (!formData.service) return;
 
         setIsLoadingSlots(true);
         try {
             const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString();
             const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString();
             
-            const response = await fetch(
-                `https://api.cal.com/v1/slots?apiKey=${apiKey}&eventTypeId=${eventTypeId}&startTime=${startOfMonth}&endTime=${endOfMonth}`
-            );
+            // Using our unified proxy endpoint (Cloudflare Function / Vite Dev Proxy)
+            // This bypasses CORS and protects the API key by keeping it on the server
+            const response = await fetch('/api/slots', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    eventTypeId,
+                    startTime: startOfMonth,
+                    endTime: endOfMonth
+                })
+            });
             
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Request failed with status ${response.status}`);
+            }
+
             const data = await response.json();
             
             if (data.slots) {
-                // Formatting data: { "2026-04-06": ["09:00:00.000Z", ...] }
                 const formattedSlots: Record<string, string[]> = {};
                 Object.keys(data.slots).forEach(date => {
                     formattedSlots[date] = data.slots[date].map((slot: any) => slot.time);
@@ -63,7 +87,7 @@ const BookingPage: React.FC = () => {
                 setAvailableSlots(formattedSlots);
             }
         } catch (error) {
-            console.error("Failed to fetch Cal.com slots:", error);
+            console.error("Failed to fetch slots through proxy:", error);
         } finally {
             setIsLoadingSlots(false);
         }
