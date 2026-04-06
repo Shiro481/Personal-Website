@@ -16,39 +16,40 @@ export default defineConfig(({ mode }) => {
         '/api/slots': {
           target: 'https://api.cal.com',
           changeOrigin: true,
-          rewrite: (_path) => {
-            // The actual URL rewrite with apiKey happens in configure below
-            return '/v1/slots';
-          },
           configure: (proxy, _options) => {
             proxy.on('proxyReq', (proxyReq, req, _res) => {
               const apiKey = env.VITE_CAL_API_KEY;
               if (!apiKey) return;
-
-              // Read the POST body to extract params and rebuild the URL with apiKey
-              // For GET-style params the rewrite already handles the path
-              // We append the apiKey to the query string on the outgoing request
-              const originalPath = proxyReq.path;
-              const separator = originalPath.includes('?') ? '&' : '?';
-              proxyReq.path = `${originalPath}${separator}apiKey=${apiKey}`;
-
-              // If this is a POST (from BookingPage), also handle forwarding body
+              
               if (req.method === 'POST') {
-                let body = '';
-                req.on('data', (chunk: Buffer) => { body += chunk.toString(); });
+                // Read input body to extract query parameters for Cal API v1 slots endpoint
+                let bodyData = '';
+                req.on('data', (chunk) => { bodyData += chunk; });
                 req.on('end', () => {
                   try {
-                    const { eventTypeId, startTime, endTime } = JSON.parse(body);
-                    const calPath = `/v1/slots?apiKey=${apiKey}&eventTypeId=${eventTypeId}&startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`;
-                    proxyReq.path = calPath;
+                    const { eventTypeId, startTime, endTime } = JSON.parse(bodyData);
+                    proxyReq.path = `/v1/slots?apiKey=${apiKey}&eventTypeId=${eventTypeId}&startTime=${encodeURIComponent(startTime)}&endTime=${encodeURIComponent(endTime)}`;
                     proxyReq.method = 'GET';
-                    proxyReq.removeHeader('content-length');
-                    proxyReq.removeHeader('content-type');
-                  } catch (_e) {
-                    // ignore parse errors
+                    proxyReq.setHeader('Content-Length', '0');
+                  } catch (e) {
+                    console.error('Error parsing proxy body for slots:', e);
                   }
                 });
               }
+            });
+          }
+        },
+        '/api/book': {
+          target: 'https://api.cal.com',
+          changeOrigin: true,
+          configure: (proxy, _options) => {
+            proxy.on('proxyReq', (proxyReq, _req, _res) => {
+              const apiKey = env.VITE_CAL_API_KEY;
+              if (!apiKey) return;
+              
+              // Cal.com API v1 requires apiKey as a query parameter even on POST
+              const originalPath = '/v1/bookings';
+              proxyReq.path = `${originalPath}?apiKey=${apiKey}`;
             });
           }
         }

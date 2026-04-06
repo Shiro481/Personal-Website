@@ -29,6 +29,9 @@ const BookingPage: React.FC = () => {
         message: ''
     });
 
+    const [bookingStatus, setBookingStatus] = useState<'idle' | 'booking' | 'success' | 'error'>('idle');
+    const [bookingError, setBookingError] = useState<string | null>(null);
+
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState<number | null>(null);
 
@@ -123,20 +126,44 @@ const BookingPage: React.FC = () => {
         setFormData({ ...formData, date: fullDate, time: '' });
     };
 
-    const handleFinish = () => {
-        const eventSlug = "consultation";
-        
-        // Include service name in the display name for visual clarity in calendar view
-        const displayName = `${formData.name} (${formData.service})`;
+    const handleFinish = async () => {
+        setBookingStatus('booking');
+        setBookingError(null);
+
+        const eventTypeId = SERVICE_TYPE_MAP[formData.service] || 5265005;
         
         // Combined notes for Cal.com
         const notesContent = `Phone: ${formData.phone}\nService: ${formData.service}${formData.message ? `\n\nMessage: ${formData.message}` : ''}`;
-        const encodedNotes = encodeURIComponent(notesContent);
         
-        // Cal.com redirect with all pre-filled data
-        const url = `https://cal.com/ambagan-shaq-lee-r-in8dyi/${eventSlug}?date=${formData.date}&slot=${formData.time}&name=${encodeURIComponent(displayName)}&email=${encodeURIComponent(formData.email)}&notes=${encodedNotes}`;
-        
-        window.open(url, '_blank');
+        try {
+            const response = await fetch('/api/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    eventTypeId,
+                    startTime: formData.time, // ISO time from availableSlots
+                    name: formData.name,
+                    email: formData.email,
+                    notes: notesContent,
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setBookingStatus('success');
+            } else {
+                setBookingStatus('error');
+                setBookingError(data.error || 'Failed to complete booking. Please try again.');
+            }
+        } catch (error) {
+            console.error("Failed to book through proxy:", error);
+            setBookingStatus('error');
+            setBookingError('A network error occurred. Please check your connection.');
+        }
     };
 
     const steps = [
@@ -223,6 +250,39 @@ const BookingPage: React.FC = () => {
                                 transition={{ duration: 0.4, ease: "easeOut" }}
                                 className="flex-grow"
                             >
+                                {bookingStatus === 'success' ? (
+                                    <div className="flex flex-col items-center justify-center text-center space-y-8 py-10 h-full">
+                                        <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center relative shadow-[0_0_50px_rgba(61,188,255,0.2)]">
+                                            <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping opacity-20" />
+                                            <Check size={48} className="text-primary stroke-[3]" />
+                                        </div>
+                                        <div className="space-y-4">
+                                            <h2 className="text-4xl font-poppins font-bold text-text-primary">Booking Confirmed!</h2>
+                                            <p className="text-text-secondary max-w-sm mx-auto">
+                                                Thank you, <span className="text-primary font-bold">{formData.name}</span>. Your meeting for <span className="text-text-primary font-semibold">{formData.service}</span> has been successfully scheduled.
+                                            </p>
+                                        </div>
+                                        <div className="bg-bg-secondary p-6 rounded-3xl border border-border w-full max-w-md">
+                                            <div className="grid grid-cols-2 gap-4 text-xs font-bold tracking-widest text-text-secondary uppercase">
+                                                <div className="text-left">
+                                                    <p className="mb-1 opacity-50">Date</p>
+                                                    <p className="text-text-primary font-poppins text-sm">{new Date(formData.time).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="mb-1 opacity-50">Time</p>
+                                                    <p className="text-text-primary font-poppins text-sm">{formatTime(formData.time)}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button 
+                                            onClick={() => window.location.href = '/'}
+                                            className="px-10 py-5 bg-primary text-black rounded-2xl text-[10px] font-extrabold tracking-[.25em] hover:scale-[1.02] transition-transform shadow-[0_0_30px_rgba(61,188,255,0.3)] uppercase"
+                                        >
+                                            Return to Home
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <>
                                 {step === 1 && (
                                     <div>
                                         <div className="mb-8">
@@ -462,10 +522,24 @@ const BookingPage: React.FC = () => {
                                         </div>
                                     </div>
                                 )}
+
+                                {bookingStatus === 'error' && (
+                                    <div className="mt-6 p-5 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-4 text-red-400">
+                                        <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                                            <span className="font-bold text-lg">!</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold tracking-widest uppercase mb-1">Booking failed</p>
+                                            <p className="text-sm font-medium">{bookingError}</p>
+                                        </div>
+                                    </div>
+                                )}
+                                </>)}
                             </motion.div>
                         </AnimatePresence>
 
                         {/* NAV BUTTONS */}
+                        {bookingStatus !== 'success' && (
                         <div className="flex items-center justify-between mt-12 pt-8 border-t border-border">
                             <button
                                 onClick={() => setStep(prev => prev > 1 ? (prev - 1 as any) : 1)}
@@ -484,19 +558,22 @@ const BookingPage: React.FC = () => {
                                     (step === 1 && !formData.service) ||
                                     (step === 2 && (!formData.date || !formData.time)) ||
                                     (step === 3 && (!formData.name || !formData.email)) ||
-                                    isLoadingSlots
+                                    isLoadingSlots ||
+                                    bookingStatus === 'booking'
                                 }
                                 className={`
                                     group flex items-center justify-center gap-3 bg-primary text-black px-8 py-5 rounded-2xl text-[10px] font-extrabold tracking-[.25em] transition-all
-                                    ${((step === 1 && !formData.service) || (step === 2 && (!formData.date || !formData.time)) || (step === 3 && (!formData.name || !formData.email)) || isLoadingSlots) 
+                                    ${((step === 1 && !formData.service) || (step === 2 && (!formData.date || !formData.time)) || (step === 3 && (!formData.name || !formData.email)) || isLoadingSlots || bookingStatus === 'booking') 
                                         ? 'opacity-20 grayscale cursor-not-allowed' 
                                         : 'hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(61,188,255,0.3)] active:scale-[0.98]'}
                                 `}
                             >
-                                {isLoadingSlots ? 'SYNCING...' : step === 3 ? 'FINALIZE BOOKING' : 'CONTINUE'}
-                                {!isLoadingSlots && <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />}
+                                {bookingStatus === 'booking' ? 'CONFIRMING...' : isLoadingSlots ? 'SYNCING...' : step === 3 ? 'FINALIZE BOOKING' : 'CONTINUE'}
+                                {(bookingStatus !== 'booking' && !isLoadingSlots) && <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />}
+                                {bookingStatus === 'booking' && <Loader2 size={16} className="animate-spin" />}
                             </button>
                         </div>
+                        )}
                     </div>
                 </motion.div>
             </main>
